@@ -2,7 +2,7 @@
   * Created by nwhitney on 11/30/16.
   */
 
-object ReadCSVInput extends App {
+object dayOne extends App {
 
   println("Reading csv file input")
   val bufferedSource = io.Source.fromFile("dayOneInput.csv")
