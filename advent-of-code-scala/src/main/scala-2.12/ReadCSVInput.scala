@@ -7,20 +7,22 @@ object ReadCSVInput extends App {
   println("Reading csv file input")
   val bufferedSource = io.Source.fromFile("dayOneInput.csv")
   for (line <- bufferedSource.getLines) {
+    // read input, parse into list of (rotate, move) tuples
     val cols = line.split(",").map(_.trim)
-    val initCoods = (0,0,0)
-    // the binary function accepts a current state, cood,
-    // and the next movement instruction, and uses instruction
-    // to update state of coordinate
-    val updateCoods  = (col: String, cood: (Int,Int,Int)) => {
-      val result = updateCood(initCoods, parseInput(col))
-      result
+    val parsedInput = cols.map(parseInput)
+    for (pi <- parsedInput) {
+      println(s"${pi}")
     }
-    val finalCoods = cols.foldLeft(initCoods)(_ updateCoods _)
-    // this is HORRIBLE and HACKEY. what's a better
-    // way to convert a tuple of ints to a List[Int]
-    // map something over the tuple?
-    val numBlocks = l0norm(List(finalCoods._1,finalCoods._2,finalCoods._3))
+
+    // foldLeft can run a 2-argument funtion where result of
+    // the function is passed as the first arg in next invocation,
+    // and second argument is the current item in the collection
+    // unlike reduce, foldLeft accepts initial value
+    val initCoods = (0,0,0)
+    val finalCoods = parsedInput.foldLeft(initCoods)(updateCood)
+    println(s"${finalCoods}")
+
+    val numBlocks = l0norm(List(finalCoods._2,finalCoods._3))
     println(s"numBlocks:$numBlocks")
   }
   bufferedSource.close
