@@ -4,9 +4,78 @@
 
 object dayOne extends App {
 
-  val initCoods = (0, 0, 0)
+  val initCood = (0, 0, 0)
   val parsedInputs = parseInputs("dayOneInput.csv")
-  val numBlocks = countNumBlocks(parsedInputs,initCoods)
+  val numBlocks = countNumBlocks(parsedInputs,initCood)
+
+  // Initialize stuff (not sure what is right way to do in Scala)
+  var noDuplicate = true
+  var coodSet = scala.collection.mutable.HashSet[(Int,Int)]()
+  var justCood = (0,0)
+  var updatedCood = initCood
+  var prevCood = initCood
+  var remainingInputs = parsedInputs
+  var nextInput = remainingInputs.head
+  var intermediateCoods = List[(Int,Int)]()
+  var duplicateCood = (0,0)
+
+  // Horrible, hackey logic to iterate through inputs
+  // until first duplicate cood is found. Then print it out.
+  // Obviously this looks like a nice candidate for a recursive fn
+  while (noDuplicate && ! remainingInputs.isEmpty) {
+    println(s"prev cood:${updatedCood}")
+    nextInput = remainingInputs.head
+    println(s"parsed input:${nextInput}")
+    prevCood = updatedCood
+    updatedCood = updateCood(updatedCood, nextInput)
+    println(s"updated cood:${updatedCood}")
+    intermediateCoods = getIntermediateCoods(prevCood,updatedCood)
+    while (noDuplicate && ! intermediateCoods.isEmpty) {
+      duplicateCood = intermediateCoods.head
+      println(s"elves passed cood:${duplicateCood}")
+      // this cool method add new elem to set, and
+      // returns false if elem was already in set!
+      noDuplicate = coodSet add duplicateCood
+      intermediateCoods = intermediateCoods.tail
+    }
+    remainingInputs = remainingInputs.tail
+  }
+  if (! noDuplicate) {
+    println(s"duplicate coordinate: ${duplicateCood}")
+  } else {
+    println(s"elves passed no duplicate cood")
+  }
+  val duplicateNumBlocks = l0norm(List(duplicateCood._1,duplicateCood._2))
+  println(s"num blocks:$duplicateNumBlocks")
+
+  def justCoordinates(triple:(Int,Int,Int)) : (Int,Int) = {
+    return (triple._2,triple._3 )
+  }
+
+  def getIntermediateCoods(prev:(Int,Int,Int), updated:(Int,Int,Int)): List[(Int,Int)] = {
+    var prevCood = justCoordinates(prev)
+    var updatedCood = justCoordinates(updated)
+    if (prevCood._1 == updatedCood._1) {
+      if (prevCood._2 < updatedCood._2) {
+        val range = prevCood._2 to (updatedCood._2 - 1)
+        return range.map( x => (prevCood._1, x)).toList
+      } else {
+        val range = (updatedCood._2 + 1) to prevCood._2
+        return range.map( x => (prevCood._1, x)).toList
+      }
+    } else if (prevCood._2 == updatedCood._2) {
+      if (prevCood._1 < updatedCood._1) {
+        val range = prevCood._1 to (updatedCood._1 - 1)
+        return range.map( y => (y, prevCood._2)).toList
+      } else {
+        val range = (updatedCood._1 + 1) to prevCood._1
+        return range.map( y => (y, prevCood._2)).toList
+      }
+    } else {
+      println(s"invalid input ${prevCood} and ${updatedCood} must share 1+ coordinate")
+      return List[(Int,Int)]()
+    }
+  }
 
   def parseInputs(fileName:String): List[(Char, Int)] = {
     println("Reading csv file input")
