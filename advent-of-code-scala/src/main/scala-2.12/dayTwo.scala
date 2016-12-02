@@ -4,6 +4,7 @@
 import scala.collection.mutable.ListBuffer
 
 object dayTwo extends App {
+  // TODO: what is the idiomatic way to process file inputs
   def parseInputs(fileName:String): List[String] = {
     println("Reading csv file input")
     var parsedInputs = new ListBuffer[String]()
