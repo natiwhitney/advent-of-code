@@ -19,8 +19,7 @@ object dayTwo extends App {
   val grid = Array(Array(1,2,3), Array(4,5,6), Array(7,8,9))
   val initState = (1,1)
   var lines = parseInputs("dayTwoInput.csv").toArray
-  println(s"num lines:${lines.length}")
-  var movesArray = lines.map(l => l.toArray)
+  val movesArray = lines.map(l => l.toArray)
 
   def move(state: (Int,Int), dir: Char): (Int, Int) = dir match {
     case 'U' => (Math.min(Math.floorMod((state._1-1),3),state._1), state._2)
@@ -30,20 +29,18 @@ object dayTwo extends App {
   }
 
   def updateState(state: (Int, Int), dir: Char): (Int, Int) = {
-    val updatedState = move(state,dir)
-    return updatedState
+    return move(state,dir)
   }
 
   def processLine(button: (Int,Int), line: Array[Char]) : (Int,Int) = {
-    val newButton = line.foldLeft(button)(updateState)
-    return newButton
+    return line.foldLeft(button)(updateState)
   }
-
-  val buttons = movesArray.scanLeft(initState)(processLine)
-  buttons.drop(1).map(b => println(s"button:${valForState(b)}"))
 
   def valForState(state: (Int,Int)): Int = {
     return grid(state._1)(state._2)
   }
+
+  movesArray.scanLeft(initState)(processLine).drop(1).map(b => println(s"button:${valForState(b)}"))
+
 
 }
